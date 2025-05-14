@@ -93,6 +93,20 @@ This includes the basic configuration for the plugin such as poll rate and the c
 
 This file includes the information for the connection(s) to the Modbus server(s) and how the Modbus Registers and Coils map to thin-edge’s Measurements, Events and Alarms.
 
+The `protocol` field in the `devices.toml` file can now be set to either `TCP` or `RTU` to specify the Modbus communication protocol. For RTU, additional fields such as `serialport`, `baudrate`, `parity`, `stopbits`, and `databits` must be configured. Below is an example configuration for an RTU device:
+
+```toml
+[[device]]
+name="TestCaseRTU"
+address=1
+protocol="RTU"
+serialport="/dev/ttyUSB0"
+baudrate=9600
+parity="N"
+stopbits=1
+databits=8
+```
+
 The device config can be managed via Cumulocity IoT or created with the Cloud Fieldbus operations.
 
 ### Updating the config files
@@ -229,12 +243,12 @@ Before you submit a PR you should run the following commands, otherwise your PR 
 
 1. Format all of the python code
 
-    ```sh
-    just format
-    ```
+   ```sh
+   just format
+   ```
 
 2. Check python linting
 
-    ```sh
-    just lint
-    ```
+   ```sh
+   just lint
+   ```

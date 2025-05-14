@@ -39,3 +39,24 @@ input=false
 alarmmapping.severity="MAJOR"
 alarmmapping.text="This alarm should be created once"
 alarmmapping.type="TestAlarm"
+
+[[device]]
+name="TestCaseRTU" # name of the child device (will be auto-generated on first message)
+address=1 # Modbus slave number
+protocol="RTU" # Specify RTU protocol
+serialport="/dev/ttyUSB0" # Serial port for RTU
+baudrate=9600 # Baud rate
+parity="N" # Parity: N (None), E (Even), O (Odd)
+stopbits=1 # Stop bits
+databits=8 # Data bits
+
+[[device.registers]]
+number=3 # register number
+startbit=0 # where to start to read in the register
+nobits=16 # length of field to read
+signed=true
+multiplier=1
+divisor=1
+decimalshiftright=0
+input=false # true = Input Register false = Holding Register
+measurementmapping.templatestring="{\"Test\":{\"Int16\":%% }}" # tedge JSON format string, %% will be replaced with the calculated value

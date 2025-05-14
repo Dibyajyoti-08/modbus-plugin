@@ -12,6 +12,7 @@ import time
 import tomli
 from paho.mqtt import client as mqtt_client
 from pymodbus.client.tcp import ModbusTcpClient
+from pymodbus.client.sync import ModbusSerialClient
 from pymodbus.exceptions import ConnectionException
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent, FileModifiedEvent
 from watchdog.observers import Observer
@@ -268,13 +269,27 @@ class ModbusPoll:
     def get_data_from_device(self, device, poll_model):
         """Get Modbus information from the device"""
         # pylint: disable=too-many-locals
-        client = ModbusTcpClient(
-            host=device["ip"],
-            port=device["port"],
-            auto_open=True,
-            auto_close=True,
-            debug=True,
-        )
+        if device["protocol"] == "TCP":
+            client = ModbusTcpClient(
+                host=device["ip"],
+                port=device["port"],
+                auto_open=True,
+                auto_close=True,
+                debug=True,
+            )
+        elif device["protocol"] == "RTU":
+            client = ModbusSerialClient(
+                method="rtu",
+                port=device["serialport"],
+                baudrate=device["baudrate"],
+                parity=device["parity"],
+                stopbits=device["stopbits"],
+                bytesize=device["databits"],
+                timeout=1,
+            )
+        else:
+            raise ValueError(f"Unsupported protocol: {device['protocol']}")
+
         holding_register, input_registers, coils, discrete_input = poll_model
         hr_results = {}
         ir_result = {}
@@ -344,7 +359,14 @@ class ModbusPoll:
         """Read device definition file"""
         if os.path.exists(device_path):
             with open(device_path, mode="rb") as file:
-                return tomli.load(file)
+                devices = tomli.load(file)
+                for device in devices.get("device", []):
+                    if device["protocol"] == "RTU":
+                        required_fields = ["serialport", "baudrate", "parity", "stopbits", "databits"]
+                        for field in required_fields:
+                            if field not in device:
+                                raise ValueError(f"Missing required field '{field}' for RTU device")
+                return devices
         else:
             self.logger.error("Device config file %s not found", device_path)
             return {}
