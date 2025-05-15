@@ -12,7 +12,7 @@ import time
 import tomli
 from paho.mqtt import client as mqtt_client
 from pymodbus.client.tcp import ModbusTcpClient
-from pymodbus.client import ModbusSerialClient  # Updated import for pymodbus 3.0.2
+from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ConnectionException
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent, FileModifiedEvent
 from watchdog.observers import Observer
